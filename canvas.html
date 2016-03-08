@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Canvas tutorial</title>
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script src="paper-full.min.js"></script>
+  <script type="text/paperscript" canvas="myCanvas" src="JScanvas.js"></script>
+</head>
+
+<body>
+  <ul id="menu">
+    <li>
+      <p title="Number 0-10">Rows:</p>
+      <input id="rows" type="text" value="3">
+    </li>
+    <li>
+      <p>Columns</p>
+      <input id="cols" type="text" value="3">
+    </li>
+    <li>
+      <p>Layers</p>
+      <input id="layers" type="text" value="3">
+    </li>
+    <li>
+      <p>Length</p>
+      <input id="length" type="text" value="3">
+    </li>
+  </ul>
+  <canvas id="myCanvas" resize></canvas>
+</body>
+</html>

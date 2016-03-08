@@ -1,0 +1,27 @@
+html, body {
+  width:  100%;
+  height: 100%;
+  margin: 0px;
+}
+
+ul{ 
+	width: 600px;
+    display: block;
+	padding-left: 0;
+    padding-right: 0;
+	margin-left: auto;
+    margin-right: auto;
+}
+
+li{
+	display: inline-block;
+	list-style-type: none;
+}
+
+canvas {
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    }
