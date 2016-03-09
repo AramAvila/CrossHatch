@@ -1,37 +1,54 @@
 var paper;
 
 function flatCanvas(){
-    var rows = $("#rows").val();
-    var cols = $("#cols").val();
-    var layers = $("#layers").val();
-    var width = $("#width").val();
-    var height = $("#height").val();
 
-    document.getElementById('myCanvas').width = width;
+    var scaling = 5; //Maximum size is 120, but it looks small on screen. it will be multiplied by 5
+    var layerSeparation = 25; //Layer separation to improve understanding
+
+    var rows = parseInt($("#rows").val());
+    var cols = parseInt($("#cols").val());
+    var layers = parseInt($("#layers").val());
+    var width = parseInt($("#width").val());
+    var height = parseInt($("#height").val());
+
+    width *= scaling;
+    height *= scaling;
+
+    document.getElementById('myCanvas').width = width + height * 0.707; //Width will be modified by height since we are faking a projection
     document.getElementById('myCanvas').height = height;
 
-    /*var axisX = new Point(1,0);
+    var axisX = new Point(1,0);
     var axisY = new Point(0.707, 0.707);
-    var axisZ = new Point(0,1);*/
+    var axisZ = new Point(0,1);
 
     var rowsSpacing = height / (rows-1);
     var colsSpacing = width / (cols-1);
 
     paper.project.activeLayer.removeChildren();
 
-    for (var i = 0; i < rows; i++) {
-        var path = new paper.Path();
-        path.strokeColor = 'blue';
+    for (var l = 0; l < layers; l++) {
+        for (var i = 0; i < rows; i++) {
+            var path = new paper.Path()
+            path.strokeColor = 'blue';
+        
+            var p1 = axisX * 0 + axisY * (i * rowsSpacing) + new Point(0, l * layerSeparation);
+            var p2 = axisX * width + axisY * (i * rowsSpacing) + new Point(0, l * layerSeparation);
 
-        path.add(new Point([0, i*rowsSpacing]), new Point([width/1, i*rowsSpacing])); //<-- Whithout dividing by 1 this wont work... can't understand why
+            path.add(p1, p2);
+        };
+
+        for (var i = 0; i < cols; i++) {
+            var path = new paper.Path();
+            path.strokeColor = 'red';
+
+            var p1 = axisX * i * colsSpacing + axisY * 0 + new Point(0, l * layerSeparation);
+            var p2 = axisX * i * colsSpacing + axisY * height + new Point(0, l * layerSeparation);
+
+            path.add(p1, p2);
+        };
     };
 
-    for (var i = 0; i < cols; i++) {
-        var path = new paper.Path();
-        path.strokeColor = 'red';
-
-        path.add(new Point([i*colsSpacing, 0]), new Point([i*colsSpacing, height/1])); //<-- Whithout dividing by 1 this wont work... can't understand why
-    };
+    
 
     paper.view.draw();
 }
