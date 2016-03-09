@@ -12,12 +12,8 @@
 <body>
   <ul id="menu">
     <li>
-      <p title="Number 0-10">Rows:</p>
-      <input id="rows" type="text" value="3">
-    </li>
-    <li>
       <p>Columns</p>
-      <input id="cols" type="text" value="3">
+      <input id="cols" type="text" value="4">
     </li>
     <li>
       <p>Layers</p>
@@ -25,11 +21,19 @@
     </li>
     <li>
       <p>Width</p>
-      <input id="width" type="text" value="400">
+      <input id="width" type="text" value="100">
     </li>
     <li>
       <p>Height</p>
-      <input id="height" type="text" value="400">
+      <input id="height" type="text" value="100">
+    </li>
+  </ul>
+
+  <ul>
+    <li>
+      <button id="rowsDown">-</button>
+      <p id="rows">3</p>
+      <button id="rowsUp">+</button>
     </li>
   </ul>
   <canvas id="myCanvas" resize></canvas>
