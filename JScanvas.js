@@ -17,7 +17,7 @@ var axisX = new Point(1, 0) * multiplier;
 /**
  * @axisY Y axis used to translate the grid points to a 3D like space: [x,y] 
  */
-var axisY = new Point(0.707, 0.707) * multiplier;  //<---- if the ratio axisY.x / axisY.y != 1 the way circleHeight behaves will have to be changed!
+var axisY = new Point(0.5, 0.5) * multiplier;  //<---- if the ratio axisY.x / axisY.y != 1 the way circleHeight behaves will have to be changed!
 /**
  * @axisZ Z axis used to translate the grid points to a 3D like space: [x,y] 
  */
@@ -111,9 +111,9 @@ updateVis = function () {
     text.justification = 'center',
             textItems.push(text);
 
-    var text = new PointText((c1 + g1) / 2 - new Point(-50, 30)); //Add row text
+    var text = new PointText((c1 + g1) / 2 - new Point(-50, 28)); //Add row text
     text.content = '+';
-    text.fontSize = 20;
+    text.fontSize = 30;
     text.justification = 'center';
     text.onMouseUp = function () {
         if (rows < 10) {
@@ -131,7 +131,7 @@ updateVis = function () {
 
     text = new PointText((c1 + g1) / 2 - new Point(50, 30)); //Remove row text
     text.content = '-';
-    text.fontSize = 20;
+    text.fontSize = 30;
     text.justification = 'center';
     text.onMouseUp = function () {
         if (rows > 2) {
@@ -143,7 +143,7 @@ updateVis = function () {
 
     var path2 = new Path(); //right line, height scroll 
     g1 = new Point(gridStart.x + 20 + width * multiplier, gridStart.y);
-    var c3 = new Point(gridStart.x + 20 + width * multiplier + height * 0.707 * multiplier, gridStart.y + height * 0.707 * multiplier);
+    var c3 = new Point(gridStart.x + 20 + width * multiplier + height * axisY.x, gridStart.y + height * axisY.x);
     path2.add(g1, c3); 
     guiItems.push(path2);
 
