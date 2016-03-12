@@ -1,125 +1,205 @@
-var Grid = function () {
+var width = 100;
+var height = 100;
+var cols = 3;
+var rows = 4;
+var layers = 3;
+var crosshatch;
 
-    this.paper;
+/**
+ * Max grid size is 120 * 120. It looks small on the screen, this multiplier is added to the axis to comensate the size
+ */
+var multiplier = 5;
 
-    this.rows;
-    this.cols;
-    this.layers;
-    this.width;
-    this.height;
+/**
+ * @axisX X axis used to translate the grid points to a 3D like space: [x,y] 
+ */
+var axisX = new Point(1, 0) * multiplier;
+/**
+ * @axisY Y axis used to translate the grid points to a 3D like space: [x,y] 
+ */
+var axisY = new Point(0.707, 0.707) * multiplier;  //<---- if the ratio axisY.x / axisY.y != 1 the way circleHeight behaves will have to be changed!
+/**
+ * @axisZ Z axis used to translate the grid points to a 3D like space: [x,y] 
+ */
+var axisZ = new Point(0, 1) * multiplier;
 
-    /**
-     * @gridStart indicates the point at which the grid has to start. All the gui's will be realtive to this point
-     */
-    this.gridStart = new Point(50, 50);
+/**
+ * @gridStart indicates the point at which the grid has to start. All the gui's will be realtive to this point
+ */
+var gridStart = new Point([600 - ((width * multiplier + axisY.x * height) / 2), 50]);
 
-    /**
-     * Max grid size is 120 * 120. It looks small on the screen, this multiplier is added to the axis to comensate the size
-     */
-    this.multiplier = 5;
 
-    /**
-     * @axisX X axis used to translate the grid points to a 3D like space: [x,y] 
-     */
-    this.axisX = new Point(1, 0) * this.multiplier;
-    /**
-     * @axisY Y axis used to translate the grid points to a 3D like space: [x,y] 
-     */
-    this.axisY = new Point(0.707, 0.707) * this.multiplier;
-    /**
-     * @axisZ Z axis used to translate the grid points to a 3D like space: [x,y] 
-     */
-    this.axisZ = new Point(0, 1) * this.multiplier;
+updateVis = function () {
 
-    /**
-     * This method updates the list of points to draw changing the this.paper object
-     */
-    this.updateVis = function () {
+    gridStart = new Point([600 - ((width * multiplier + axisY.x * height) / 2), 50]);
 
-        var layerSeparation = Math.min(10, 120 / this.layers); //Layer separation to improve understanding
+    crosshatch.project.clear();
 
-        var rowsSpacing = this.height / (this.rows - 1);
-        var colsSpacing = this.width / (this.cols - 1);
+    var layerSeparation = Math.min(10, 120 / layers); //Layer separation to improve understanding
 
-        this.paper.project.activeLayer.removeChildren(); //all previous paths are removed
+    var rowsSpacing = height / (rows - 1);
+    var colsSpacing = width / (cols - 1);
 
-        for (var l = this.layers; l >= 0; l--) {
+    var paths = [];
 
-            var color1 = Math.min(Math.random(), 0.8);
-            var color2 = Math.min(Math.random(), 0.8);
-            var color3 = Math.min(Math.random(), 0.8);
+    for (var l = layers; l > 0; l--) {
 
-            for (var i = 0; i < this.rows; i++) {
-                var path = new this.paper.Path();
-                path.strokeColor = new Color(color1, color2, color3);
-                path.strokeWidth = 3;
+        var path = new Path();
+        var p1 = axisZ * l * layerSeparation + gridStart;
+        var p2 = axisY * height + axisZ * l * layerSeparation + gridStart;
+        var p3 = axisX * width + axisY * height + axisZ * l * layerSeparation + gridStart;
 
-                var p1 = this.axisX * 0 + this.axisY * (i * rowsSpacing) + this.axisZ * l * layerSeparation + this.gridStart;
-                var p2 = this.axisX * this.width + this.axisY * (i * rowsSpacing) + this.axisZ * l * layerSeparation + this.gridStart;
+        path.add(p1, p2, p3);
+        paths.push(path);
+    }
 
-                path.add(p1, p2);
+    for (var i = 0; i < rows; i++) {
+        var path = new Path();
+        var p1 = axisX * 0 + axisY * (i * rowsSpacing) + axisZ * l * layerSeparation + gridStart;
+        var p2 = axisX * width + axisY * (i * rowsSpacing) + axisZ * l * layerSeparation + gridStart;
+
+        path.add(p1, p2);
+        paths.push(path);
+    }
+
+    for (var i = 0; i < cols; i++) {
+        var path = new Path();
+        var p1 = axisX * i * colsSpacing + axisY * 0 + axisZ * l * layerSeparation + gridStart;
+        var p2 = axisX * i * colsSpacing + axisY * height + axisZ * l * layerSeparation + gridStart;
+
+        path.add(p1, p2);
+        paths.push(path);
+    }
+
+    var layer1 = new Layer({
+        children: paths,
+        strokeColor: 'black',
+        strokeWidth: 3
+    });
+
+    //----grawing gui items------------------------------------------------------
+    var path1 = new Path();
+    var g1 = new Point(gridStart.x, gridStart.y - 20);
+    var c1 = new Point(gridStart.x + width * multiplier, gridStart.y - 20);
+    path1.add(g1, c1); //top line, width scroll
+
+    var path2 = new Path();
+    g1 = new Point(gridStart.x + 20 + width * multiplier, gridStart.y);
+    var c3 = new Point(gridStart.x + 20 + width * multiplier + height * 0.707 * multiplier, gridStart.y + height * 0.707 * multiplier);
+    path2.add(g1, c3); //right line, height scroll 
+
+    var path3 = new Path();
+    g1 = new Point(gridStart.x - 20, gridStart.y);
+    var c2 = new Point(gridStart.x - 20, gridStart.y + layers * layerSeparation * multiplier);
+    path3.add(g1, c2); //left line, layer number
+
+
+
+    var circleWidth = new crosshatch.Path.Circle({center: c1, radius: 7});
+    circleWidth.fillColor = "blue";
+    circleWidth.onMouseEnter = function () {
+        this.fillColor = "red";
+    };
+    circleWidth.onMouseLeave = function () {
+        this.fillColor = "blue";
+    };
+    circleWidth.onMouseDrag = function (event) {
+        if (width > 0 && width <= 120) {
+            if (event.delta.x > 0) {
+                this.position.x += 1;
+                width += 1;
+                updateVis();
+            } else if (event.delta.x < 0) {
+                this.position.x -= 1;
+                width -= 1;
+                updateVis();
             }
 
-            for (var i = 0; i < this.cols; i++) {
-                var path = new this.paper.Path();
-                path.strokeColor = new Color(color1, color2, color3);
-                path.strokeWidth = 3;
-
-                var p1 = this.axisX * i * colsSpacing + this.axisY * 0 + this.axisZ * l * layerSeparation + this.gridStart;
-                var p2 = this.axisX * i * colsSpacing + this.axisY * this.height + this.axisZ * l * layerSeparation + this.gridStart;
-
-                path.add(p1, p2);
+        } else {
+            if (width <= 0 && event.delta.x > 0) {
+                this.position.x += 1;
+                width += 1;
+                updateVis();
+            }
+            if (width > 120 && event.delta.x < 0) {
+                this.position.x -= 1;
+                width -= 1;
+                updateVis();
             }
         }
-
-        //----grawing gui items
-        var path = new this.paper.Path();
-        path.strokeColor = new Color(0, 0, 0);
-        path.strokeWidth = 3;
-        var g1 = new Point(this.gridStart[0], this.gridStart[1] - 20);
-        var g2 = new Point(this.gridStart[0] + this.width * this.multiplier, this.gridStart[1] - 20);
-        path.add(g1, g2);
-
-        var path = new this.paper.Path();
-        path.strokeColor = new Color(0, 0, 0);
-        path.strokeWidth = 3;
-        var g1 = new Point(this.gridStart[0] - 20, this.gridStart[1]);
-        var g2 = new Point(this.gridStart[0] - 20, this.gridStart[1] + this.layers * layerSeparation * this.multiplier);
-        path.add(g1, g2);
-
-        var path = new this.paper.Path();
-        path.strokeColor = new Color(0, 0, 0);
-        path.strokeWidth = 3;
-        var g1 = new Point(this.gridStart[0] + 20 + this.width * this.multiplier, this.gridStart[1]);
-        var g2 = new Point(this.gridStart[0] + 20 + this.width * this.multiplier + this.height * 0.707 * this.multiplier, this.gridStart[1]+ this.height * 0.707 * this.multiplier);
-        path.add(g1, g2);
-
-        this.paper.view.draw();
     };
 
-    /**
-     * This method updates the values with wich the grid will be created (number of columns, rows, layers, etc)
-     */
-    this.updateValues = function () {
-        this.rows = parseInt($("#rows").text());
-        this.cols = parseInt($("#cols").val());
-        this.layers = parseInt($("#layers").val());
-        this.width = parseInt($("#width").val());
-        this.height = parseInt($("#height").val());
-        this.gridStart = [600 - ((this.width * this.multiplier + this.axisY.x * this.height) / 2), 50];
+    var circleHeight = new crosshatch.Path.Circle({center: c3, radius: 7});
+    circleHeight.fillColor = "blue";
+    circleHeight.onMouseEnter = function () {
+        this.fillColor = "red";
+
     };
+    circleHeight.onMouseLeave = function () {
+        this.fillColor = "blue";
+    };
+    circleHeight.onMouseDrag = function (event) {
+        if (height > 0 && height <= 120) {
+            if (event.delta.x > 0) {
+                this.position += 1;
+                height += 1;
+                updateVis();
+            } else if (event.delta.x < 0) {
+                this.position -= 1;
+                height -= 1;
+                updateVis();
+            }
+
+        } else {
+            if (height <= 0 && event.delta.x > 0) {
+                this.position += 1;
+                height += 1;
+                updateVis();
+            }
+            if (height > 120 && event.delta.x < 0) {
+                this.position -= 1;
+                height -= 1;
+                updateVis();
+            }
+        }
+    };
+
+    var circleLayersMore = new crosshatch.Path.Circle({center: c2, radius: 7});
+    circleLayersMore.fillColor = "blue";
+    circleLayersMore.onMouseEnter = function () {
+        this.fillColor = "red";
+    };
+    circleLayersMore.onMouseLeave = function () {
+        this.fillColor = "blue";
+    };
+    circleLayersMore.onMouseUp = function () {
+        layers += 1;
+        updateVis();
+    };
+
+    var circleLayersLess = new crosshatch.Path.Circle({center: g1, radius: 7});
+    circleLayersLess.fillColor = "blue";
+    circleLayersLess.onMouseEnter = function () {
+        this.fillColor = "red";
+    };
+    circleLayersLess.onMouseLeave = function () {
+        this.fillColor = "blue";
+    };
+    circleLayersLess.onMouseUp = function () {
+        if (layers > 1) {
+            layers -= 1;
+            updateVis();
+        }
+    };
+
+    var layer2 = new crosshatch.Layer({
+        children: [path1, path2, path3, circleWidth, circleHeight, circleLayersMore, circleLayersLess],
+        strokeColor: 'blue',
+        strokeWidth: 2
+    });
+
+    crosshatch.view.draw();
 };
-
-var crosshatch = new Grid();
-
-function onMouseDrag(event) {
-    if (event.point.x < 1200 && event.point.x > 0) {
-
-    }
-    if (event.point.y < 1200 && event.point.y > 0) {
-
-    }
-}
 
 $(document).ready(function () {
 
@@ -127,42 +207,7 @@ $(document).ready(function () {
     var canvas = document.getElementById('myCanvas');
     paper.setup(canvas);
 
-    crosshatch.paper = paper;
+    crosshatch = paper;
 
-    crosshatch.updateValues();
-    crosshatch.updateVis();
-
-    $("#cols, #layers, #width, #height").keyup(function () {
-        crosshatch.updateValues();
-        crosshatch.updateVis();
-    });
-
-    $("#cols, #layers, #width, #height").on("keydown", function (e) {
-
-        switch (e.which) {
-            case 38: // up
-                $(this).val(parseInt($(this).val()) + 1);
-
-                break;
-
-            case 40: // down
-                $(this).val(parseInt($(this).val()) - 1);
-
-                break;
-
-            default:
-                return;
-        }
-        e.preventDefault();
-    });
-
-    $("#rowsUp").on("click", function () {
-        $("#rows").text(parseInt($("#rows").text()) + 1);
-        orthogonalCanvas();
-    });
-
-    $("#rowsDown").on("click", function () {
-        $("#rows").text(parseInt($("#rows").text()) - 1);
-        orthogonalCanvas();
-    });
+    updateVis();
 }); 
