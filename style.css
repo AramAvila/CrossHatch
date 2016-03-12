@@ -1,27 +1,41 @@
 html, body {
-  width:  100%;
-  height: 100%;
-  margin: 0px;
+    width:  100%;
+    height: 100%;
+    margin: 0px;
 }
 
 ul{ 
-	width: 800px;
+    width: 800px;
     display: block;
-	padding-left: 0;
+    padding-left: 0;
     padding-right: 0;
-	margin-left: auto;
+    margin-left: auto;
     margin-right: auto;
 }
 
 li{
-	display: inline-block;
-	list-style-type: none;
+    display: inline-block;
+    list-style-type: none;
 }
 
 canvas {
     padding-left: 0;
     padding-right: 0;
+    margin-top: 50px;
     margin-left: auto;
     margin-right: auto;
     display: block;
-    }
+    width: 1200px;
+    height: 1200px;
+}
+
+h1{
+    margin-top: 50px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 0;
+    padding-right: 0;
+    width: 600px;
+    text-align: center;
+    font-family: verdana;
+}
