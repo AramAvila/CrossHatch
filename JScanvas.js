@@ -1,12 +1,17 @@
+
 var width = 100;
 var height = 100;
+
 var maxSize = new Point(120, 120);
+var minSize = new Point(10, 10);
+
 var cols = 3;
 var rows = 4;
 var layers = 3;
 var layerSeparation = 10;
 var canvasLayers = [];
 var crosshatch;
+
 
 /**
  * Max grid size is 120 * 120. It looks small on the screen, this multiplier is added to the axis to comensate the size
@@ -29,12 +34,14 @@ var axisZ = new Point(0, 1) * multiplier;
 /**
  * @gridStart indicates the point at which the grid has to start. All the gui's will be realtive to this point
  */
-var gridStart = new Point(100, 100);
+var gridStart = new Point(50, 100);
+
+var wallColor = new Color(0.7, 0.7, 0.7);
 
 
 var updateVis = function () {
 
-    layerSeparation = Math.min(10, 120 / layers); //Layer separation to improve understanding
+    layerSeparation = Math.min(5, 120 / layers); //Layer separation to improve understanding
 
     canvasLayers[0].activate();
     canvasLayers[0].clear();
@@ -46,82 +53,65 @@ var updateVis = function () {
 
     for (var l = layers; l > 0; l--) {
 
-        var path = new Path();
-        var p1 = axisZ * l * layerSeparation + gridStart;
-        var p2 = axisY * height + axisZ * l * layerSeparation + gridStart;
-        var p3 = axisX * width + axisY * height + axisZ * l * layerSeparation + gridStart;
+        for (var r = 0; r < rows; r++) {//first is drawn the furthest wall, (the lowest first row)
+            var recR1 = gridStart + axisZ * layerSeparation * (l - 1) + axisY * r * rowsSpacing;
+            var recR2 = gridStart + axisZ * layerSeparation * (l - 1) + axisY * r * rowsSpacing + axisX * width;
+            var recR3 = gridStart + axisZ * layerSeparation * l + axisY * r * rowsSpacing + axisX * width;
+            var recR4 = gridStart + axisZ * layerSeparation * l + axisY * r * rowsSpacing;
+            var recR = new Path(recR1, recR2, recR3, recR4);
+            recR.fillColor = wallColor;
+            recR.strokeColor = "black";
 
-        path.add(p1, p2, p3);
-        if (l === layers) {
-            path.strokeWidth = 3;
-        };
-        paths.push(path);
+            paths.push(recR);
+            if (r !== rows - 1) { //the last row is the wall that closes the shape, it has no more columns
+                for (var c = cols - 1; c >= 0; c--) { //after the first row is drawn the columns are added
+                    var recC1 = gridStart + axisZ * layerSeparation * (l - 1) + axisY * r * rowsSpacing + axisX * colsSpacing * c;
+                    var recC2 = gridStart + axisZ * layerSeparation * (l - 1) + axisY * (r + 1) * rowsSpacing + axisX * colsSpacing * c;
+                    var recC3 = gridStart + axisZ * layerSeparation * l + axisY * (r + 1) * rowsSpacing + axisX * colsSpacing * c;
+                    var recC4 = gridStart + axisZ * layerSeparation * l + axisY * r * rowsSpacing + axisX * colsSpacing * c;
+                    var recC = new Path(recC1, recC2, recC3, recC4);
+                    recC.closed = true;
+                    recC.fillColor = wallColor / 2;
+                    recC.strokeColor = "black";
+                    paths.push(recC);
+                }
+            }
+        }
     }
-
     var path = new Path();
-    p1 = gridStart;
-    p2 = axisZ * layers * layerSeparation + gridStart;
-    path.strokeWidth = 3;
-    path.add(p1, p2);
-    paths.push(path);
-
-    var path = new Path();
-    p1 = axisY * height + gridStart;
-    p2 = axisY * height + axisZ * layers * layerSeparation + gridStart;
-    path.strokeWidth = 3;
-    path.add(p1, p2);
-    paths.push(path);
-
-    var path = new Path();
-    p1 = axisX * width + axisY * height + gridStart;
-    p2 = axisX * width + axisY * height + axisZ * layers * layerSeparation + gridStart;
-    path.strokeWidth = 3;
-    path.add(p1, p2);
-    paths.push(path);
-
-    var path = new Path();
-    path.add(new Point(gridStart + axisX * width + axisY * (-8)), new Point(gridStart + axisX * width));
+    path.add(gridStart + axisX * width - axisY * 8, gridStart + axisX * width);
+    path.strokeColor = "black";
     path.dashArray = [5, 6];
     path.strokeWidth = 1;
     paths.push(path);
 
-    for (var i = 0; i < rows; i++) {
-        var path = new Path();
-        var p1 = axisX * 0 + axisY * (i * rowsSpacing) + axisZ * l * layerSeparation + gridStart;
-        var p2 = axisX * width + axisY * (i * rowsSpacing) + axisZ * l * layerSeparation + gridStart;
-        path.strokeWidth = 3;
-        path.add(p1, p2);
-        paths.push(path);
-    }
-
-    for (var i = 0; i < cols; i++) {
-        var path = new Path();
-        var p1 = axisX * i * colsSpacing + axisY * 0 + axisZ * l * layerSeparation + gridStart;
-        var p2 = axisX * i * colsSpacing + axisY * height + axisZ * l * layerSeparation + gridStart;
-        path.strokeWidth = 3;
-        path.add(p1, p2);
-        paths.push(path);
-    }
-    
     var path = new Path();
-    path.add(new Point(gridStart.x + 20 + maxSize.x * multiplier, gridStart.y) + axisY * height, p2);
+    path.add(gridStart + axisX * (maxSize.x + 5) + axisY * height, gridStart + axisX * width + axisY * height);
+    path.strokeColor = "black";
     path.dashArray = [5, 6];
     path.strokeWidth = 1;
     paths.push(path);
-    
-    var innerLines = getInnerLines();
+
+    /*
+     var path = new Path();
+     path.add(gridStart, gridStart + axisX * 20);
+     path.dashArray = [5, 6];
+     path.strokeWidth = 5;
+     path.strokeColor = "yellow";
+     paths.push(path);
+     
+     var path = new Path();
+     path.add(gridStart, gridStart + axisY * 20);
+     path.dashArray = [5, 6];
+     path.strokeWidth = 5;
+     path.strokeColor = "red";
+     paths.push(path);*/
 
     canvasLayers[0] = new Layer({
-        children: paths,
-        strokeColor: 'black'
+        children: paths
     });
 
     crosshatch.view.draw();
-};
-
-var getInnerLines = function(){
-  var a = 1;
-    return a;
 };
 
 var drawGui = function () {
@@ -137,20 +127,20 @@ var drawGui = function () {
 
     //---Upper part of the grid: Width scroll, and rows
     var path1 = new Path();
-    var g1 = new Point(gridStart.x, gridStart.y) + axisY * (-8);
-    var c1 = new Point(gridStart.x + maxSize.x * multiplier, gridStart.y) + axisY * (-8);
+    var g1 = gridStart + axisY * (-8);
+    var c1 = gridStart + axisX * maxSize.x + axisY * (-8);
     path1.add(g1, c1); //top line, width scroll
     guiItems.push(path1);
     for (var i = 0; i <= 12; i++) {
-        g1 = new Point(gridStart.x + i * 10 * multiplier, gridStart.y) + axisY * (-6);
-        c1 = new Point(gridStart.x + i * 10 * multiplier, gridStart.y) + axisY * (-10);
+        g1 = gridStart + axisX * i * 10 + axisY * (-6);
+        c1 = gridStart + axisX * i * 10 + axisY * (-10);
         var path = new Path(g1, c1);
         guiItems.push(path);
     }
 
     for (var i = 0; i < 12; i++) {
-        g1 = new Point(gridStart.x + (5 + i * 10) * multiplier, gridStart.y) + axisY * (-8);
-        c1 = new Point(gridStart.x + (5 + i * 10) * multiplier, gridStart.y) + axisY * (-10);
+        g1 = gridStart + axisX * (i + 0.5) * 10 + axisY * (-8);
+        c1 = gridStart + axisX * (i + 0.5) * 10 + axisY * (-10);
         var path = new Path(g1, c1);
         guiItems.push(path);
     }
@@ -187,11 +177,11 @@ var drawGui = function () {
         $('html,body').css('cursor', 'grabbing');
         width += event.delta.x / multiplier;
         updateVis();
-        if (width < 0) {
-            width = 0;
+        if (width < minSize.x) {
+            width = minSize.x;
         }
-        if (width > 120) {
-            width = 120;
+        if (width > maxSize.x) {
+            width = maxSize.x;
         }
         widthPointer.fillColor = "red";
         widthPointer.position = new Point(gridStart + axisX * width + axisY * (-10) + axisZ * (-2));
@@ -201,55 +191,24 @@ var drawGui = function () {
     };
     guiItems.push(groupW);
 
-
-    /*text = new PointText((c1 + g1) / 2 - new Point(-50, 28)); //Add row text
-     text.content = '+';
-     text.fontSize = 30;
-     text.justification = 'center';
-     text.onMouseUp = function () {
-     if (rows < 10) {
-     rows += 1;
-     }
-     updateVis();
-     };
-     textItems.push(text);
-     
-     text = new PointText((c1 + g1) / 2 - new Point(0, 30)); //descriptive row text
-     text.content = 'Rows: ' + rows;
-     text.fontSize = 20;
-     text.justification = 'center';
-     textItems.push(text);
-     
-     text = new PointText((c1 + g1) / 2 - new Point(50, 30)); //Remove row text
-     text.content = '-';
-     text.fontSize = 30;
-     text.justification = 'center';
-     text.onMouseUp = function () {
-     if (rows > 2) {
-     rows -= 1;
-     }
-     updateVis();
-     };
-     textItems.push(text);*/
-
     //------Right side of gui, Height scroll
     var path2 = new Path();
-    g1 = new Point(gridStart.x + 20 + maxSize.x * multiplier, gridStart.y);
-    var c3 = new Point(gridStart.x + 20 + maxSize.x * multiplier + maxSize.y * axisY.x, gridStart.y + maxSize.y * axisY.x);
+    g1 = gridStart + axisX * (maxSize.x + 5);
+    var c3 = gridStart + axisX * (maxSize.x + 5) + axisY * maxSize.y;
     path2.add(g1, c3); //top line, width scroll
     guiItems.push(path2);
 
     var p1 = (c3 - g1) / 12;
     for (var i = 0; i <= 12; i++) {
-        var p2 = new Point(g1 + p1 * i - [5, 0]);
-        c3 = new Point(g1 + p1 * i + [5, 0]);
+        var p2 = new Point(g1 + p1 * i - axisX);
+        c3 = new Point(g1 + p1 * i + axisX);
         var path = new Path(p2, c3);
         guiItems.push(path);
     }
 
     for (var i = 0; i < 12; i++) {
-        var p2 = new Point(g1 + p1 * i + [10, 10]);
-        c3 = new Point(g1 + p1 * i + [15, 10]);
+        var p2 = g1 + p1 * (i + 0.5);
+        c3 = g1 + p1 * (i + 0.5) + axisX;
         var path = new Path(p2, c3);
         guiItems.push(path);
     }
@@ -291,11 +250,11 @@ var drawGui = function () {
         $('html,body').css('cursor', 'grabbing');
         height += event.delta.y / multiplier;
         updateVis();
-        if (height < 0) {
-            height = 0;
+        if (height < minSize.y) {
+            height = minSize.y;
         }
-        if (height > 120) {
-            height = 120;
+        if (height > maxSize.y) {
+            height = maxSize.y;
         }
         heightPointer.fillColor = "red";
         heightPointer.position = new Point(g1 + axisY * height + [10, -10]);
@@ -304,40 +263,6 @@ var drawGui = function () {
         heightText.position = new Point(g1 + axisY * height + [20, -20]);
     };
     guiItems.push(groupH);
-
-
-
-    var circleLayersMore = new crosshatch.Path.RegularPolygon(new Point(gridStart.x - 20, gridStart.y + layers * layerSeparation * multiplier) - new Point(0, 10), 3, -10);
-    circleLayersMore.closed = "true";
-    circleLayersMore.fillColor = "blue";
-    circleLayersMore.onMouseEnter = function () {
-        this.fillColor = "red";
-    };
-    circleLayersMore.onMouseLeave = function () {
-        this.fillColor = "blue";
-    };
-    circleLayersMore.onMouseUp = function () {
-        layers += 1;
-        updateVis();
-    };
-    guiItems.push(circleLayersMore);
-
-
-    var circleLayersLess = new crosshatch.Path.RegularPolygon(gridStart - [20, -10], 3, 10);
-    circleLayersLess.fillColor = "blue";
-    circleLayersLess.onMouseEnter = function () {
-        this.fillColor = "red";
-    };
-    circleLayersLess.onMouseLeave = function () {
-        this.fillColor = "blue";
-    };
-    circleLayersLess.onMouseUp = function () {
-        if (layers > 1) {
-            layers -= 1;
-            updateVis();
-        }
-    };
-    guiItems.push(circleLayersLess);
 
     canvasLayers[1] = new crosshatch.Layer({
         children: guiItems,
@@ -368,34 +293,112 @@ function onKeyDown(event) {
             width += 1;
             event.preventDefault();
             break;
+            /*
+             case 'a':
+             angle += 1;
+             angle2 += 1;
+             axisY = new Point(rotatePointArroundAxis([axisY.x, 0, axisY.y], [0, 1, 0], -0.1)[0], rotatePointArroundAxis([axisY.x, 0, axisY.y], [0, 1, 0], -0.1)[2]);
+             axisX = new Point(rotatePointArroundAxis([axisX.x, 0, axisX.y], [0, 1, 0], -0.1)[0], rotatePointArroundAxis([axisX.x, 0, axisX.y], [0, 1, 0], -0.1)[2]);
+             event.preventDefault();
+             break;
+             case 'd':
+             angle -= 1;
+             angle2 -= 1;
+             axisY = new Point(rotatePointArroundAxis([axisY.x, 0, axisY.y], [0, 1, 0], 0.1)[0], rotatePointArroundAxis([axisY.x, 0, axisY.y], [0, 1, 0], 0.1)[2]);
+             axisX = new Point(rotatePointArroundAxis([axisX.x, 0, axisX.y], [0, 1, 0], 0.1)[0], rotatePointArroundAxis([axisX.x, 0, axisX.y], [0, 1, 0], 0.1)[2]);
+             event.preventDefault();
+             break;*/
     }
-    if (height < 0) {
-        height = 0;
+    if (height < minSize.y) {
+        height = minSize.y;
     }
-    if (height > 120) {
-        height = 120;
+    if (height > maxSize.y) {
+        height = maxSize.y;
     }
-    if (width < 0) {
-        width = 0;
+    if (width < minSize.x) {
+        width = minSize.x;
     }
-    if (width > 120) {
-        width = 120;
+    if (width > maxSize.x) {
+        width = maxSize.x;
     }
     crosshatch.project.clear();
     updateVis();
     drawGui();
 }
 
+
+function rotatePointArroundAxis(point, axis, angle) {
+
+    var v1 = point[0] * axis[0] + point[1] * axis[1] + point[2] * axis[2];
+    var oneMinusCos = 1 - Math.cos(angle);
+    var axisModule = Math.sqrt(axis[0] * axis[0] + axis[1] * axis[1] + axis[2] * axis[2]);
+    var axisM = axis[0] * axis[0] + axis[1] * axis[1] + axis[2] * axis[2];
+    var rotatedPoint = [];
+    rotatedPoint[0] = ((axis[0] * v1 * oneMinusCos + axisM * point[0] * Math.cos(angle) + axisModule * (-axis[2] * point[1] + axis[1] * point[2]) * Math.sin(angle)) / axisM);
+    rotatedPoint[1] = ((axis[1] * v1 * oneMinusCos + axisM * point[1] * Math.cos(angle) + axisModule * (axis[2] * point[0] - axis[0] * point[2]) * Math.sin(angle)) / axisM);
+    rotatedPoint[2] = ((axis[2] * v1 * oneMinusCos + axisM * point[2] * Math.cos(angle) + axisModule * (-axis[1] * point[0] + axis[0] * point[1]) * Math.sin(angle)) / axisM);
+    console.log(rotatedPoint);
+    return rotatedPoint;
+}
+
 function onMouseUp() {
     $('html,body').css('cursor', 'default');
-
 }
-;
+
+
 
 
 $(document).ready(function () {
 
     // Get a reference to the canvas object
+    $("#rowsUp").on("click", function () {
+        if (rows < 10) {
+            rows++;
+            $("#rows").text("Rows: " + rows);
+            updateVis();
+        }
+    });
+
+    $("#rowsDown").on("click", function () {
+        if (rows > 2) {
+            rows--;
+            $("#rows").text("Rows: " + rows);
+            updateVis();
+        }
+    });
+
+    $("#colsUp").on("click", function () {
+        if (cols < 10) {
+            cols++;
+            $("#columns").text("Columns: " + cols);
+            updateVis();
+        }
+    });
+
+    $("#colsDown").on("click", function () {
+        if (cols > 2) {
+            cols--;
+            $("#columns").text("Columns: " + cols);
+            updateVis();
+        }
+    });
+
+    $("#layersUp").on("click", function () {
+        if (layers < 100) {
+            layers++;
+            $("#layers").text("Layers: " + layers);
+            updateVis();
+        }
+    });
+
+    $("#layersDown").on("click", function () {
+        if (layers > 1) {
+            layers--;
+            $("#layers").text("Layers: " + layers);
+            updateVis();
+        }
+    });
+
     var canvas = document.getElementById('myCanvas');
     paper.setup(canvas);
 

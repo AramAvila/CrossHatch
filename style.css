@@ -4,19 +4,22 @@ html, body {
     margin: 0px;
 }
 
-ul{ 
-    width: 800px;
-    display: block;
-    padding-left: 0;
-    padding-right: 0;
-    margin-left: auto;
-    margin-right: auto;
+#menu{
+    margin-top: 90px;
+    list-style-type: none;
+    float: left;
 }
 
-li{
-    display: inline-block;
+.option li{
     list-style-type: none;
+    padding: 10px;
+    display: inline-block;
 }
+
+.option li p{
+    width: 90px;
+}
+
 
 canvas {
     padding-left: 0;
@@ -38,4 +41,12 @@ h1{
     width: 600px;
     text-align: center;
     font-family: verdana;
+}
+
+button{
+    background: url(Button.png);
+    background-size: cover;
+    background-repeat: no-repeat;
+    width: 40px;
+    height: 40px;
 }

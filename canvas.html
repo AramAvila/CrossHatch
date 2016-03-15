@@ -1,16 +1,57 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <title>Canvas tutorial</title>
-  <link rel="stylesheet" type="text/css" href="style.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-  <script src="paper-full.min.js"></script>
-  <script type="text/paperscript" canvas="myCanvas" src="JScanvas.js"></script>
-</head>
+    <head>
+        <meta charset="utf-8">
+        <title>Canvas tutorial</title>
+        <link rel="stylesheet" type="text/css" href="style.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+        <script src="paper-full.min.js"></script>
+        <script type="text/paperscript" canvas="myCanvas" src="JScanvas.js"></script>
+    </head>
 
-<body>
-    <h1>CrossHatch designer</h1>
-  <canvas id="myCanvas" resize></canvas>
-</body>
+    <body>
+        <h1>CrossHatch designer</h1>
+        <ul id = "menu">
+            <li>
+                <ul class="option">
+                    <li>
+                        <button id="rowsDown"></button>
+                    </li>
+                    <li>
+                        <p id="rows">Rows: 3</p>
+                    </li>
+                    <li>
+                        <button id="rowsUp"></button>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <ul class="option">
+                    <li>
+                        <button id="colsDown"></button>
+                    </li>
+                    <li>
+                        <p id="columns">Columns: 4</p>
+                    </li>
+                    <li>
+                        <button id="colsUp"></button>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <ul class="option">
+                    <li>
+                        <button id="layersDown"></button>
+                    </li>
+                    <li>
+                        <p id="layers">Layers: 3</p>
+                    </li>
+                    <li>
+                        <button id="layersUp"></button>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        <canvas id="myCanvas" resize></canvas>
+    </body>
 </html>
