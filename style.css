@@ -2,12 +2,15 @@ html, body {
     width:  100%;
     height: 100%;
     margin: 0px;
+    background: url(swirl_pattern.png);
+
 }
 
 #menu{
     margin-top: 90px;
     list-style-type: none;
     float: left;
+    z-index: 60;
 }
 
 .option li{
@@ -20,16 +23,30 @@ html, body {
     width: 90px;
 }
 
-
-canvas {
-    padding-left: 0;
-    padding-right: 0;
-    margin-top: 50px;
+#title, #description, canvas{
+    position: absolute;
     margin-left: auto;
     margin-right: auto;
-    display: block;
+    left: 0;
+    right: 0;
+}
+
+#title{
+    font-family: 'Noto Sans', sans-serif;
+
+}
+
+#description{
+    font-family: 'Noto Sans', sans-serif;
+    top: 100px;
+    width: 1000px;
+    text-align: center;
+}
+
+canvas {
     width: 1200px;
-    height: 1200px;
+    height: 800px;
+    z-index: 10;
 }
 
 h1{

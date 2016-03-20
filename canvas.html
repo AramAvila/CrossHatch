@@ -4,54 +4,18 @@
         <meta charset="utf-8">
         <title>Canvas tutorial</title>
         <link rel="stylesheet" type="text/css" href="style.css">
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
         <script src="paper-full.min.js"></script>
+        <link href='https://fonts.googleapis.com/css?family=Noto+Sans:400,700' rel='stylesheet' type='text/css'>
         <script type="text/paperscript" canvas="myCanvas" src="JScanvas.js"></script>
     </head>
 
     <body>
-        <h1>CrossHatch designer</h1>
-        <ul id = "menu">
-            <li>
-                <ul class="option">
-                    <li>
-                        <button id="rowsDown"></button>
-                    </li>
-                    <li>
-                        <p id="rows">Rows: 3</p>
-                    </li>
-                    <li>
-                        <button id="rowsUp"></button>
-                    </li>
-                </ul>
-            </li>
-            <li>
-                <ul class="option">
-                    <li>
-                        <button id="colsDown"></button>
-                    </li>
-                    <li>
-                        <p id="columns">Columns: 4</p>
-                    </li>
-                    <li>
-                        <button id="colsUp"></button>
-                    </li>
-                </ul>
-            </li>
-            <li>
-                <ul class="option">
-                    <li>
-                        <button id="layersDown"></button>
-                    </li>
-                    <li>
-                        <p id="layers">Layers: 3</p>
-                    </li>
-                    <li>
-                        <button id="layersUp"></button>
-                    </li>
-                </ul>
-            </li>
-        </ul>
-        <canvas id="myCanvas" resize></canvas>
+        <canvas id="myCanvas"></canvas>
+        <h1 id="title">Crosspatch designer</h1>
+        <p id="description">This tool allows you to create and print crosspatch patterns.<br>
+            Building this design tool will enable you to test some interesting parameters and learn a lot for your first 3d food printing tool!<br>
+            This app will generate a file that with the data needed to 3D print a food crosshatch pattern. The control of the app is done with the following input parameters: <br>
+            Number of rows<br> Number of columns <br>Number of layers<br>Crosspathc width<br>Crosspathc length<br>
+            This five parameter will control the dimension and shape of the crosshatch</p>
     </body>
 </html>
