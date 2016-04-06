@@ -173,20 +173,20 @@ var updateVis = function () {
         layers: layers,
         cols: cols,
         rows: rows,
-        initHeight: Number(document.getElementById('initHeight').value),
+        initialHeight: Number(document.getElementById('initialHeight').value),
         layerHeight: Number(document.getElementById('layerHeight').value),
         zTravelHeight: Number(document.getElementById('zTravelHeight').value),
-        matDiam: Number(document.getElementById('matDiam').value),
-        nozzDiam: Number(document.getElementById('nozzDiam').value),
-        frTravel: Number(document.getElementById('frTravel').value),
-        frPrinting: Number(document.getElementById('frPrinting').value),
-        frExtruder: Number(document.getElementById('frExtruder').value),
-        exRetraction: Number(document.getElementById('exRetraction').value),
-        exFeedrate: Number(document.getElementById('exFeedrate').value),
-        bupPressExt: Number(document.getElementById('bupPressExt').value),
-        bupPressDist: Number(document.getElementById('bupPressDist').value),
-        relPressExt: Number(document.getElementById('relPressExt').value),
-        relPressDist: Number(document.getElementById('relPressDist').value)
+        matDiameter: Number(document.getElementById('matDiameter').value),
+        nozzDiameter: Number(document.getElementById('nozzDiameter').value),
+        feedrateTravel: Number(document.getElementById('feedrateTravel').value),
+        feedratePrinting: Number(document.getElementById('feedratePrinting').value),
+        feedrateExtruder: Number(document.getElementById('feedrateExtruder').value),
+        extruderRetraction: Number(document.getElementById('extruderRetraction').value),
+        extruderFeedrate: Number(document.getElementById('extruderFeedrate').value),
+        buildUpPressExtrusion: Number(document.getElementById('buildUpPressExtrusion').value),
+        buildUpPressDist: Number(document.getElementById('buildUpPressDist').value),
+        releasePressExtrusion: Number(document.getElementById('releasePressExtrusion').value),
+        releasePressDist: Number(document.getElementById('releasePressDist').value)
     };
 
     updateValues(data);//a call to the method updateValues, located at JSfunctions.js
