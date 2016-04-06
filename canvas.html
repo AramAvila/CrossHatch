@@ -3,68 +3,63 @@
     <head>
         <meta charset="utf-8">
         <title>Canvas tutorial</title>
-        <link rel="stylesheet" type="text/css" href="style.css">
-        <script src="paper-full.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="css/style.css">
         <link href='https://fonts.googleapis.com/css?family=Noto+Sans:400,700' rel='stylesheet' type='text/css'>
-        <script type="text/paperscript" canvas="myCanvas" src="JScanvas.js"></script>
-        <script>  <!-- This piece of script is used to aviod the need of another javascript file. (the other one is paperscript)-->
-            function toggleOptions() {
-                var opts = document.getElementById("additionalOptions");
-                if (opts.style.visibility !== "visible") {
-                    opts.style.visibility = "visible";
-                } else {
-                    opts.style.visibility = "hidden";
-                }
-            }
-        </script>
+        <script type="text/paperscript" canvas="myCanvas" src="js/JScanvas.js"></script>
+        <script src="js/paper-full.min.js"></script>
+        <script type="text/javascript" src="js/JSfunctions.js"></script>
+        <script type="text/javascript" src="js/FileSaver.min.js"></script>
     </head>
 
-    <body>
+    <body>        
+        
+
         <canvas id="myCanvas"></canvas>
         <h1 id="title">Crosspatch designer</h1>
         <p id="description">This tool allows you to create and print crosspatch patterns.<br>
             Building this design tool will enable you to test some interesting parameters and learn a lot for your first 3d food printing tool!<br>
-            This app will generate a file that with the data needed to 3D print a food crosshatch pattern. The control of the app is done with the following input parameters: <br>
+            This app will generate a file that with the data needed to 3D print a food crosshatch pattern. <br>The control of the app is done with the following input parameters: <br>
             Number of rows<br> Number of columns <br>Number of layers<br>Crosspathc width<br>Crosspathc length<br>
             This five parameter will control the dimension and shape of the crosshatch</p>
 
-        <button id="toggOpts" onclick="toggleOptions()">Show additional options</button>
+        <button id="toggOpts" onclick="toggleOptions()">Settings</button>
+        <button id="saveAs" onclick="saveGcode()">Save Godefile</button>
 
         <ul id="additionalOptions">
             <li>
                 <p>Initial heigth:</p>
-                <input type="text" placeholder="mm">
+                <input type="text" placeholder="mm" id="initHeight" value="10">
             </li>
             <li>
                 <p>Layer heigth</p>
-                <input type="text" placeholder="mm">
+                <input type="text" placeholder="mm" id="layerHeight" value="1">
             </li>
             <li>
                 <p>Z travel height</p>
-                <input type="text" placeholder="mm">
+                <input type="text" placeholder="mm" id="zTravelHeight" value="4">
             </li>
             <li>
                 <p>Material diameter</p>
-                <input type="text" placeholder="mm">
+                <input type="text" placeholder="mm" id="matDiam" value="38">
             </li>
             <li>
                 <p>Noozle diameter</p>
-                <input type="text" placeholder="mm">
+                <input type="text" placeholder="mm" id="nozzDiam" value="1.5">
             </li>
             <li>
                 <p>Feedrate:</p>
                 <ul>
                     <li>                
                         <p>Travel</p>
-                        <input type="text" placeholder="mm/s">
+                        <input type="text" placeholder="mm/s" id="frTravel" value="5000">
                     </li>
                     <li>   
                         <p>Printing</p>
-                        <input type="text" placeholder="mm/s">
+                        <input type="text" placeholder="mm/s" id="frPrinting" value="2000">
                     </li>
                     <li>   
                         <p>Extruder</p>
-                        <input type="text" placeholder="mm/s">
+                        <input type="text" placeholder="mm/s" id="frExtruder" value="1">
                     </li>
                 </ul>
             </li>
@@ -72,28 +67,27 @@
             <li>
                 <p>Extruder:</p>
                 <ul>
-                    <li>                
+                    <li>
                         <p>Retraction</p>
-                        <input type="text" placeholder="mm">
+                        <input type="text" placeholder="mm" id="exRetraction" value="2">
                     </li>
                     <li>   
                         <p>Feedrate</p>
-                        <input type="text" placeholder="mm/s">
+                        <input type="text" placeholder="mm/s" id="exFeedrate" value="600">
                     </li>
                     <li>   
                         <p>Build up pressure</p>
-                        <input type="text" placeholder="Extrusion (mm)">
-                        <input type="text" placeholder="Distance (mm)">
+                        <input type="text" placeholder="Extrusion (mm)" id="bupPressExt" value="1">
+                        <input type="text" placeholder="Distance (mm)" id="bupPressDist" value="1">
                     </li>
                     <li>   
-                        <p>Build up pressure</p>
-                        <input type="text" placeholder="Extrusion (mm)">
-                        <input type="text" placeholder="Distance (mm)">
+                        <p>Release pressure</p>
+                        <input type="text" placeholder="Extrusion (mm)" id="relPressExt" value="1">
+                        <input type="text" placeholder="Distance (mm)" id="relPressDist" value="1">
                     </li>
                 </ul>
             </li>
 
         </ul>
-
     </body>
 </html>
