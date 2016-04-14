@@ -180,13 +180,10 @@ var updateVis = function () {
         nozzDiameter: Number(document.getElementById('nozzDiameter').value),
         feedrateTravel: Number(document.getElementById('feedrateTravel').value),
         feedratePrinting: Number(document.getElementById('feedratePrinting').value),
-        feedrateExtruder: Number(document.getElementById('feedrateExtruder').value),
         extruderRetraction: Number(document.getElementById('extruderRetraction').value),
         extruderFeedrate: Number(document.getElementById('extruderFeedrate').value),
         buildUpPressExtrusion: Number(document.getElementById('buildUpPressExtrusion').value),
-        buildUpPressDist: Number(document.getElementById('buildUpPressDist').value),
         releasePressExtrusion: Number(document.getElementById('releasePressExtrusion').value),
-        releasePressDist: Number(document.getElementById('releasePressDist').value)
     };
 
     updateValues(data);//a call to the method updateValues, located at JSfunctions.js
