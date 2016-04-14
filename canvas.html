@@ -12,18 +12,17 @@
     </head>
 
     <body>        
-        
-
         <canvas id="myCanvas"></canvas>
-        <h1 id="title">Crosspatch designer</h1>
-        <p id="description">This tool allows you to create and print crosspatch patterns.<br>
-            Building this design tool will enable you to test some interesting parameters and learn a lot for your first 3d food printing tool!<br>
-            This app will generate a file that with the data needed to 3D print a food crosshatch pattern. <br>The control of the app is done with the following input parameters: <br>
-            Number of rows<br> Number of columns <br>Number of layers<br>Crosspathc width<br>Crosspathc length<br>
-            This five parameter will control the dimension and shape of the crosshatch</p>
+        <h1 id="title">Crosshatch design tool</h1>
+        <p id="description">
+            This design tool creates 3d food printable crosshatch patterns.<br>
+            Designing your own is easy, select the number of columns, rows, layers and the width and length.<br>
+            Click on the settings button to fine tune your 3d food printer parameters.<br>
+            Once you have design that you love and the settings right click save to SAVE your printable file.
+        </p>
 
         <button id="toggOpts" onclick="toggleOptions()">Settings</button>
-        <button id="saveAs" onclick="saveGcode()">Save Godefile</button>
+        <button id="saveAs" onclick="saveGcode()">Save</button>
 
         <ul id="additionalOptions">
             <li>
@@ -57,10 +56,6 @@
                         <p>Printing</p>
                         <input type="text" placeholder="mm/s" id="feedratePrinting" value="2000">
                     </li>
-                    <li>   
-                        <p>Extruder</p>
-                        <input type="text" placeholder="mm/s" id="feedrateExtruder" value="1">
-                    </li>
                 </ul>
             </li>
 
@@ -71,19 +66,17 @@
                         <p>Retraction</p>
                         <input type="text" placeholder="mm" id="extruderRetraction" value="2">
                     </li>
-                    <li>   
+                    <li>
                         <p>Feedrate</p>
                         <input type="text" placeholder="mm/s" id="extruderFeedrate" value="600">
                     </li>
-                    <li>   
+                    <li>
                         <p>Build up pressure</p>
                         <input type="text" placeholder="Extrusion (mm)" id="buildUpPressExtrusion" value="1">
-                        <input type="text" placeholder="Distance (mm)" id="buildUpPressDist" value="1">
                     </li>
                     <li>   
                         <p>Release pressure</p>
                         <input type="text" placeholder="Extrusion (mm)" id="releasePressExtrusion" value="1">
-                        <input type="text" placeholder="Distance (mm)" id="releasePressDist" value="1">
                     </li>
                 </ul>
             </li>
