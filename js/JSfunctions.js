@@ -3,7 +3,34 @@
  * @type data
  */
 var currentData;
+function Point() {
+    this.x = 0;
+    this.y = 0;
+    this.distance = function (point2) {
+        var x = point2.x - this.x;
+        var y = point2.y - this.y;
+        var dist = Math.sqrt((x * x) + (y * y));
+        return dist;
+    };
+}
+;
+function Line() {
+    this.start = new Point();
+    this.end = new Point();
+    this.swapEnds = function () {
+        var buffer = this.start;
+        this.start = this.end;
+        this.end = buffer;
+    };
 
+    this.length = function () {
+        var x = this.end.x - this.start.x;
+        var y = this.end.y - this.start.y;
+        var dist = Math.sqrt((x * x) + (y * y));
+        return dist;
+    };
+}
+;
 function toggleOptions() {
     var opts = document.getElementById("additionalOptions");
     if (opts.style.visibility !== "visible") {
@@ -17,189 +44,206 @@ function saveGcode() {
 
     //lbr will be a macro to print a line Break
     var lBr = "\r\n";
-
-    //var lines will contain all the text for the file
-    var lines = [];
+    var fileData = [];
 
     //all the propertries we got from the app will be added as comments. Just in case something goes wrong
-    lines.push(";------- Current propertries ----" + lBr);
+    fileData.push(";------- Current propertries ----" + lBr);
     var count = 0;
     for (var prop in currentData) {
         if (currentData.hasOwnProperty(prop))
             ++count;
-        lines.push(";-------" + prop + ": " + currentData[prop] + lBr);
+        fileData.push(";-------" + prop + ": " + currentData[prop] + lBr);
     }
-    lines.push(";-------------------- " + lBr);
-    lines.push(lBr);
-    lines.push(lBr);
+    fileData.push(";-------------------- " + lBr);
+    fileData.push(lBr);
+    fileData.push(lBr);
 
+    //var lines will contain all the sorted lines
+    var unsrotedLines = getCurrentDataPoints();
+    var lines = sortLines(unsrotedLines);
+
+    var zHeight = currentData.initialHeight;
+    var extrusion = 0;
+
+    fileData.push(";------- Start printing ----" + lBr);
+    fileData.push(";---Homing all axis" + lBr);
+    fileData.push("G28" + lBr);
+    fileData.push(";---Reset extruder value" + lBr);
+    fileData.push("G92 E0" + lBr);
+
+    fileData.push(";---Move to first point" + lBr);
+    fileData.push("G1 X" + roundNumber(lines[0].start.x) + " Y" + roundNumber(lines[0].start.y) + " Z" + roundNumber(zHeight) + " F" + currentData.feedrateTravel + lBr);
+
+    fileData.push(";---Build up pressure" + lBr);
+    fileData.push("G1 E" + currentData.buildUpPressExtrusion + " F" + currentData.extruderFeedrate + lBr);
+    fileData.push("G92 E0" + lBr);
+
+    for (var z = 0; z < currentData.layers; z++) {
+        for (var c = 0; c < lines.length; c++) {
+
+            var deltaExtrusion = (Math.PI * (currentData.nozzDiameter * currentData.nozzDiameter) * lines[c].length()) / (Math.PI * (currentData.matDiameter * currentData.matDiameter));
+            extrusion += deltaExtrusion;
+
+            fileData.push(";---Delta extrusion for next line: " + roundNumber(deltaExtrusion) + lBr);
+            fileData.push(";---Printing move" + lBr);
+            fileData.push("G1 X" + roundNumber(lines[c].end.x) + " Y" + roundNumber(lines[c].end.y) + " E" + roundNumber(extrusion) + " F" + currentData.extruderFeedrate + lBr);
+
+            if (c + 1 < lines.length) {//if it's not the last line we will move the extruder to the next line starting point
+                fileData.push(";---Moving to next line start" + lBr);
+
+                extrusion -= currentData.extruderRetraction;
+                fileData.push("G1 E" + roundNumber(extrusion) + " F" + currentData.extruderFeedrate + lBr);
+
+                zHeight += currentData.zTravelHeight;
+                fileData.push("G1 Z" + roundNumber(zHeight) + " F" + currentData.feedrateTravel + lBr);
+                fileData.push("G1 X" + roundNumber(lines[c + 1].start.x) + " Y" + roundNumber(lines[c + 1].start.y) + " F" + currentData.feedrateTravel + lBr);
+
+                zHeight -= currentData.zTravelHeight;
+                fileData.push("G1 Z" + roundNumber(zHeight) + " F" + currentData.feedrateTravel + lBr);
+
+                extrusion += currentData.extruderRetraction;
+                fileData.push("G1 E" + roundNumber(extrusion) + " F" + currentData.extruderFeedrate + lBr);
+            }
+        }
+        zHeight += currentData.layerHeight;
+        if (z !== currentData.layers) {//if it's not the last layer, we will have to move
+            fileData.push(";---Moving to next line start" + lBr);
+
+            extrusion -= currentData.extruderRetraction;
+            fileData.push("G1 E" + roundNumber(extrusion) + " F" + currentData.extruderFeedrate + lBr);
+
+            zHeight += currentData.zTravelHeight;
+            fileData.push("G1 Z" + roundNumber(zHeight) + " F" + currentData.feedrateTravel + lBr);
+            fileData.push("G1 X" + roundNumber(lines[0].start.x) + " Y" + roundNumber(lines[0].start.y) + " F" + currentData.feedrateTravel + lBr);
+
+            zHeight -= currentData.zTravelHeight;
+            fileData.push("G1 Z" + roundNumber(zHeight) + " F" + currentData.feedrateTravel + lBr);
+
+            extrusion += currentData.extruderRetraction;
+            fileData.push("G1 E" + roundNumber(extrusion) + " F" + currentData.extruderFeedrate + lBr);
+        }
+    }
+
+    fileData.push(";---Done printing" + lBr + lBr);
+    fileData.push(";---Releasing pressure" + lBr);
+    extrusion -= currentData.buildUpPressExtrusion;
+    fileData.push("G1 E" + roundNumber(extrusion) + " F" + currentData.extruderFeedrate + lBr);
+    fileData.push(";---finishing" + lBr);
+    fileData.push("G28" + lBr);
+    fileData.push("M84" + lBr);
+
+
+    var blob = new Blob(fileData, {type: "text/plain;charset=utf-8"});
+    saveAs(blob, "testFile.gcode");
+}
+
+function roundNumber(n) {
+    return Math.round(n * 1000) / 1000;
+}
+
+
+/**
+ * Uses the current data to generate a list with all the lines neded to print in an array of lines:
+ * 
+ * @returns {Array|getCurrentDataPoints.lines}
+ */
+function getCurrentDataPoints() {
+
+    var lines = [];
     var leftMargin = -(currentData.width / 2);
     var rightMargin = currentData.width / 2;
-
     var topMargin = currentData.height / 2;
     var botMargin = -(currentData.height / 2);
-
-    var rowExtrusion = currentData.width * currentData.feedrateExtruder;
-    var colExtrusion = currentData.height * currentData.feedrateExtruder;
-
-    var currentExtrusion = 0;
-
-    //extruder side will be one of 4: top -> t, bottom -> b, left -> l, right -> r. And will be used to now in wich side is the extruder, and to wich side has to move
-    var extruderSide = "l";
-
-    //spaces between rows or columns, has to be +1 to make sure that the center of rows or columns is in the middle
+    
+    //spaces between rows or columns, has to be + 1 to make sure that the center of rows or columns is in the middle
     var rowsSpacing = currentData.height / (currentData.rows + 1);
     var colsSpacing = currentData.width / (currentData.cols + 1);
 
-    //Here we start working on printing lines
-    lines.push(";------- Start printing ----" + lBr);
-    lines.push(";---Homing all axis" + lBr);
-    lines.push("G28" + lBr);
-    lines.push(";---Reset extruder value" + lBr);
-    lines.push("G92 E0" + lBr);
+    for (var c = 1; c <= currentData.cols; c++) {
+        var start = new Point();
+        start.x = leftMargin;
+        start.y = topMargin - c * colsSpacing;
 
-    var zHeight = currentData.initialHeight;
-    for (var layer = 0; layer < currentData.layers; layer++) {
-        var currPos, bup;
-        zHeight += currentData.layerHeight;
-        lines.push(";---New layer, number: " + layer + lBr);
+        var end = new Point;
+        end.x = rightMargin;
+        end.y = topMargin - c * colsSpacing;
 
-        for (var row = 1; row <= currentData.rows; row++) {
+        line = new Line;
+        line.start = start;
+        line.end = end;
 
-            if (extruderSide === "l") { //if the extruder is on the left side, it will have to move to the right side
-                lines.push(";---Extruder on left side, drawing row: " + row + lBr);
-                currPos = topMargin - rowsSpacing * row;
-                lines.push("G1 X" + leftMargin + " Y" + currPos + " Z" + zHeight + " F" + currentData.feedrateTravel + lBr);
-                lines.push(";---Build up pressure and print" + lBr);
-                bup = currentExtrusion + currentData.buildUpPressExtrusion;
-                lines.push("G1 E" + bup + " F" + currentData.feedrateExtruder + lBr);
-                lines.push("G92 E" + currentExtrusion + lBr);
-                lines.push("G1 F" + currentData.feedratePrinting + lBr);
-                currentExtrusion += rowExtrusion;
-                currPos = topMargin - rowsSpacing * row;
-                lines.push("G1 X" + rightMargin + " Y" + currPos + " E" + currentExtrusion + lBr);
-                extruderSide = "r";
-                lines.push(";---Release pressure and move" + lBr);
-                lines.push("G1 E" + currentExtrusion + " F" + currentData.feedrateExtruder + lBr);
-                lines.push("G1 F" + currentData.feedrateTravel + lBr);
-                if (row !== currentData.rows) {//if we are not printing the last row, this line moves the extrusor to the next row
-                    currPos = topMargin - rowsSpacing * (row + 1);
-                    lines.push("G1 X" + rightMargin + " Y" + currPos + " E" + currentExtrusion + lBr);
-                }
-
-            } else if (extruderSide === "r") {//if the extruder is on the right side, it will have to move to the left.
-                lines.push(";---Extruder on right side, drawing row: " + row + lBr);
-                currPos = topMargin - rowsSpacing * row;
-                lines.push("G1 X" + rightMargin + " Y" + currPos + " Z" + zHeight + " F" + currentData.feedrateTravel + lBr);
-                lines.push(";---Build up pressure and print" + lBr);
-                bup = currentExtrusion + currentData.buildUpPressExtrusion;
-                lines.push("G1 E" + bup + " F" + currentData.feedrateExtruder + lBr);
-                lines.push("G92 E" + currentExtrusion + lBr);
-                lines.push("G1 F" + currentData.feedratePrinting + lBr);
-                currentExtrusion += rowExtrusion;
-                currPos = topMargin - rowsSpacing * row;
-                lines.push("G1 X" + leftMargin + " Y" + currPos + " E" + currentExtrusion + lBr);
-                extruderSide = "l";
-                lines.push(";---Release pressure and move" + lBr);
-                lines.push("G1 E" + currentExtrusion + " F" + currentData.feedrateExtruder + lBr);
-                lines.push("G1 F" + currentData.feedrateTravel + lBr);
-                if (row !== currentData.rows) {//if we are not printing the last row, this line moves the extrusor to the next row
-                    currPos = topMargin - rowsSpacing * (row + 1);
-                    lines.push("G1 X" + leftMargin + " Y" + currPos + " E" + currentExtrusion + lBr);
-                }
-            }
-        }
-
-        //depending on wich side the extrusor is, we will begin drawing the columns from the left or from the right
-        var currentCol = 0;
-        var columnsEnd = 0;
-        var deltaCol = 0;
-        if (extruderSide === "l") {
-            currentCol = 1;
-            columnsEnd = currentData.cols + 1;
-            deltaCol = 1;
-            extruderSide = "b";
-
-        } else if (extruderSide === "r") {
-            currentCol = currentData.cols;
-            columnsEnd = 0;
-            deltaCol = -1;
-            extruderSide = "b";
-
-        }
-
-        lines.push(";---Done drawing rows, starting with columns" + lBr);
-
-        //we will be drawing columns until we reach the last one
-        var nextColumn = true;
-        while (nextColumn) {
-
-            if (extruderSide === "b") { //if the extruder is on the left side, it will have to move to the right side
-                lines.push(";---Extruder on bot side, drawing column: " + currentCol + lBr);
-                currPos = leftMargin + colsSpacing * currentCol;
-                lines.push("G1 X" + currPos + " Y" + botMargin + " Z" + zHeight + " F" + currentData.feedrateTravel + lBr);
-                lines.push(";---Build up pressure and print" + lBr);
-                bup = currentExtrusion + currentData.buildUpPressExtrusion;
-                lines.push("G1 E" + bup + " F" + currentData.feedrateExtruder + lBr);
-                lines.push("G92 E" + currentExtrusion + lBr);
-                lines.push("G1 F" + currentData.feedratePrinting + lBr);
-                currentExtrusion += colExtrusion;
-                currPos = leftMargin + colsSpacing * currentCol;
-                lines.push("G1 X" + currPos + " Y" + topMargin + " E" + currentExtrusion + lBr);
-                extruderSide = "t";
-                lines.push(";---Release pressure and move" + lBr);
-                lines.push("G1 E" + currentExtrusion + " F" + currentData.feedrateExtruder + lBr);
-                lines.push("G1 F" + currentData.feedrateTravel + lBr);
-                currPos = leftMargin + colsSpacing * (currentCol + deltaCol);
-                lines.push("G1 X" + currPos + " Y" + topMargin + " E" + currentExtrusion + lBr);
-
-            } else if (extruderSide === "t") {//if the extruder is on the right side, it will have to move to the left.
-                lines.push(";---Extruder on top side, drawing column: " + currentCol + lBr);
-                currPos = leftMargin + colsSpacing * currentCol;
-                lines.push("G1 X" + currPos + " Y" + topMargin + " Z" + zHeight + " F" + currentData.feedrateTravel + lBr);
-                lines.push(";---Build up pressure and print" + lBr);
-                bup = currentExtrusion + currentData.buildUpPressExtrusion;
-                lines.push("G1 E" + bup + " F" + currentData.feedrateExtruder + lBr);
-                lines.push("G92 E" + currentExtrusion + lBr);
-                lines.push("G1 F" + currentData.feedratePrinting + lBr);
-                currentExtrusion += colExtrusion;
-                currPos = leftMargin + colsSpacing * currentCol;
-                lines.push("G1 X" + currPos + " Y" + botMargin + " E" + currentExtrusion + lBr);
-                extruderSide = "b";
-                lines.push(";---Release pressure and move" + lBr);
-                lines.push("G1 E" + currentExtrusion + " F" + currentData.feedrateExtruder + lBr);
-                lines.push("G1 F" + currentData.feedrateTravel + lBr);
-                currPos = leftMargin + colsSpacing * (currentCol + deltaCol);
-                lines.push("G1 X" + currPos + " Y" + botMargin + " E" + currentExtrusion + lBr);
-            }
-
-            currentCol += deltaCol;
-            if (currentCol === columnsEnd) {
-                nextColumn = false;
-            }
-        }
-
-        //if the number of columns is even, they will be drawn from right to left, otherwise, from left to right
-        //that means that the extruder position when it finishes drawing the columns will depend on the number of columns
-        if (currentData.cols % 2 === 1) {
-            extruderSide = "l";
-
-        } else {
-            extruderSide = "r";
-        }
+        lines.push(line);
     }
-    lines.push(";------- Done printing ----" + lBr);
-    lines.push(";---Release pressure" + lBr);
-    bup = currentExtrusion + currentData.buildUpPressExtrusion;
-    lines.push("G1 E" + bup + " F" + currentData.feedrateExtruder + lBr);
-    lines.push("G92 E" + currentExtrusion + lBr);
-    lines.push(";---Homing all axis" + lBr);
-    lines.push("G28" + lBr);  //<-- this would step over the shape
-    lines.push(";---Motors disabled" + lBr);
-    lines.push("M84" + lBr);
 
-    var blob = new Blob(lines, {type: "text/plain;charset=utf-8"});
-    saveAs(blob, "testFile.gcode");
+    for (var r = 1; r <= currentData.rows; r++) {
+        var start = new Point;
+        start.x = leftMargin + r * rowsSpacing;
+        start.y = topMargin;
+
+        var end = new Point;
+        end.x = leftMargin + r * rowsSpacing;
+        end.y = botMargin;
+
+        line = new Line;
+        line.start = start;
+        line.end = end;
+        lines.push(line);
+    }
+
+    return lines;
+}
+
+
+/**
+ * Sorts the lines to find the closest route between them
+ * 
+ * @param {type} unsortedLines
+ * @returns {sortLines.sortedLines|type}
+ */
+function sortLines(unsortedLines) {
+
+    var sortedLines = [];
+    sortedLines[0] = unsortedLines[0];
+    unsortedLines.shift();
+
+    while (unsortedLines.length > 0) {
+
+        var lastLine = sortedLines[sortedLines.length - 1];
+        var closestLine = unsortedLines[0];
+
+        var distToStart = lastLine.end.distance(closestLine.start);
+        var distToEnd = lastLine.end.distance(closestLine.end);
+        var shortestDist;
+
+        if (distToStart > distToEnd) {
+            closestLine.swapEnds();
+            shortestDist = distToEnd;
+        } else {
+            shortestDist = distToStart;
+        }
+
+        var index = 0;
+        for (var l = 0; l < unsortedLines.length; l++) {
+            distToStart = lastLine.end.distance(unsortedLines[l].start);
+            distToEnd = lastLine.end.distance(unsortedLines[l].end);
+
+            if (distToStart < shortestDist || distToEnd < shortestDist) {
+                closestLine = unsortedLines[l];
+                index = l;
+                if (distToStart < distToEnd) {
+                    shortestDist = distToStart;
+                } else {
+                    closestLine.swapEnds();
+                    shortestDist = distToEnd;
+                }
+            }
+        }
+
+        unsortedLines.splice(index, 1);
+        sortedLines.push(closestLine);
+    }
+
+    return sortedLines;
 }
 
 function updateValues(data) {
