@@ -86,7 +86,7 @@ function saveGcode() {
 
             fileData.push(";---Delta extrusion for next line: " + roundNumber(deltaExtrusion) + lBr);
             fileData.push(";---Printing move" + lBr);
-            fileData.push("G1 X" + roundNumber(lines[c].end.x) + " Y" + roundNumber(lines[c].end.y) + " E" + roundNumber(extrusion) + " F" + currentData.extruderFeedrate + lBr);
+            fileData.push("G1 X" + roundNumber(lines[c].end.x) + " Y" + roundNumber(lines[c].end.y) + " E" + roundNumber(extrusion) + " F" + currentData.feedratePrinting + lBr);
 
             if (c + 1 < lines.length) {//if it's not the last line we will move the extruder to the next line starting point
                 fileData.push(";---Moving to next line start" + lBr);
