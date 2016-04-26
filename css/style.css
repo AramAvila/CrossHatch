@@ -86,4 +86,5 @@ h1{
 
 #additionalOptions li > input{
     font-family: 'Noto Sans', sans-serif;
+    float:left;
 }
