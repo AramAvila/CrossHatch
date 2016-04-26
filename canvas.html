@@ -27,34 +27,41 @@
         <ul id="additionalOptions">
             <li>
                 <p>Initial heigth:</p>
-                <input type="text" placeholder="mm" id="initialHeight" value="10">
+                <input type="text" placeholder="mm" id="initialHeight" value="10" onkeyup="updateAddSettings()">
+                <p>mm</p>
             </li>
             <li>
                 <p>Layer heigth</p>
-                <input type="text" placeholder="mm" id="layerHeight" value="1">
+                <input type="text" placeholder="mm" id="layerHeight" value="1" onkeyup="updateAddSettings()">
+                <p>mm</p>
             </li>
             <li>
                 <p>Z travel height</p>
-                <input type="text" placeholder="mm" id="zTravelHeight" value="4">
+                <input type="text" placeholder="mm" id="zTravelHeight" value="4" onkeyup="updateAddSettings()">
+                <p>mm</p>
             </li>
             <li>
                 <p>Material diameter</p>
-                <input type="text" placeholder="mm" id="matDiameter" value="38">
+                <input type="text" placeholder="mm" id="matDiameter" value="38" onkeyup="updateAddSettings()">
+                <p>mm</p>
             </li>
             <li>
                 <p>Noozle diameter</p>
-                <input type="text" placeholder="mm" id="nozzDiameter" value="1.5">
+                <input type="text" placeholder="mm" id="nozzDiameter" value="1.5" onkeyup="updateAddSettings()">
+                <p>mm</p>
             </li>
             <li>
                 <p>Feedrate:</p>
                 <ul>
                     <li>                
                         <p>Travel</p>
-                        <input type="text" placeholder="mm/s" id="feedrateTravel" value="5000">
+                        <input type="text" placeholder="mm/s" id="feedrateTravel" value="5000" onkeyup="updateAddSettings()">
+                        <p>mm/s</p>
                     </li>
                     <li>   
                         <p>Printing</p>
-                        <input type="text" placeholder="mm/s" id="feedratePrinting" value="2000">
+                        <input type="text" placeholder="mm/s" id="feedratePrinting" value="2000" onkeyup="updateAddSettings()">
+                        <p>mm/s</p>
                     </li>
                 </ul>
             </li>
@@ -64,23 +71,26 @@
                 <ul>
                     <li>
                         <p>Retraction</p>
-                        <input type="text" placeholder="mm" id="extruderRetraction" value="2">
+                        <input type="text" placeholder="mm" id="extruderRetraction" value="2" onkeyup="updateAddSettings()">
+                        <p>mm</p>
                     </li>
                     <li>
                         <p>Feedrate</p>
-                        <input type="text" placeholder="mm/s" id="extruderFeedrate" value="600">
+                        <input type="text" placeholder="mm/s" id="extruderFeedrate" value="600" onkeyup="updateAddSettings()">
+                        <p>mm/s</p>
                     </li>
                     <li>
                         <p>Build up pressure</p>
-                        <input type="text" placeholder="Extrusion (mm)" id="buildUpPressExtrusion" value="1">
+                        <input type="text" placeholder="Extrusion (mm)" id="buildUpPressExtrusion" value="1" onkeyup="updateAddSettings()">
+                        <p>mm</p>
                     </li>
                     <li>   
                         <p>Release pressure</p>
-                        <input type="text" placeholder="Extrusion (mm)" id="releasePressExtrusion" value="1">
+                        <input type="text" placeholder="Extrusion (mm)" id="releasePressExtrusion" value="1" onkeyup="updateAddSettings()">
+                        <p>mm</p>
                     </li>
                 </ul>
             </li>
-
         </ul>
     </body>
 </html>
