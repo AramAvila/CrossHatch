@@ -46,7 +46,7 @@ html, body {
 canvas {
     position: absolute;
     width: 1200px;
-    height: 800px;
+    height: 650px;
     z-index: 10;
 }
 
@@ -62,17 +62,17 @@ h1{
 }
 
 #toggOpts{
-    top: 850px;
+    top: 700px;
     width: 100px;
 }
 
 #saveAs{
-    top: 900px;
+    top: 750px;
     width: 115px;
 }
 
 #additionalOptions{
-    top: 950px;
+    top: 800px;
     width: 390px;
     visibility: hidden;
     list-style-type: none;
