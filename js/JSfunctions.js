@@ -2,7 +2,25 @@
  * current data contains the updated values of the app
  * @type data
  */
-var currentData;
+var currentData = {
+    width: 100,
+    height: 100,
+    layers: 3,
+    cols: 3,
+    rows: 4,
+    initialHeight: 10,
+    layerHeight: 1,
+    zTravelHeight: 4,
+    matDiameter: 38,
+    nozzDiameter: 1.5,
+    feedrateTravel: 5000,
+    feedratePrinting: 2000,
+    extruderRetraction: 2,
+    extruderFeedrate: 600,
+    buildUpPressExtrusion: 1,
+    releasePressExtrusion: 1
+};
+
 function Point() {
     this.x = 0;
     this.y = 0;
@@ -30,13 +48,16 @@ function Line() {
         return dist;
     };
 }
-;
+
+
 function toggleOptions() {
     var opts = document.getElementById("additionalOptions");
     if (opts.style.visibility !== "visible") {
         opts.style.visibility = "visible";
+        window.scrollTo(0, 800);
     } else {
         opts.style.visibility = "hidden";
+        window.scrollTo(0, 0);
     }
 }
 
@@ -156,8 +177,8 @@ function getCurrentDataPoints() {
     var botMargin = -(currentData.height / 2);
     
     //spaces between rows or columns, has to be + 1 to make sure that the center of rows or columns is in the middle
-    var rowsSpacing = currentData.height / (currentData.rows + 1);
-    var colsSpacing = currentData.width / (currentData.cols + 1);
+    var rowsSpacing = currentData.width / (currentData.rows + 1);
+    var colsSpacing = currentData.height / (currentData.cols + 1);
 
     for (var c = 1; c <= currentData.cols; c++) {
         var start = new Point();
@@ -246,6 +267,49 @@ function sortLines(unsortedLines) {
     return sortedLines;
 }
 
-function updateValues(data) {
-    currentData = data;
+function updateData(data) {
+    
+    var count = 0;
+    for (var prop in data) {
+        if (data.hasOwnProperty(prop)) {
+            ++count;
+            var value = Number(data[prop]);
+            if (!Number.isNaN(value)) {
+                currentData[prop] = value;
+            }
+        }
+    }
+}
+
+function updateAddSettings() {
+    
+    var addSettings = {
+        initialHeight: Number(document.getElementById('initialHeight').value),
+        layerHeight: Number(document.getElementById('layerHeight').value),
+        zTravelHeight: Number(document.getElementById('zTravelHeight').value),
+        matDiameter: Number(document.getElementById('matDiameter').value),
+        nozzDiameter: Number(document.getElementById('nozzDiameter').value),
+        feedrateTravel: Number(document.getElementById('feedrateTravel').value),
+        feedratePrinting: Number(document.getElementById('feedratePrinting').value),
+        extruderRetraction: Number(document.getElementById('extruderRetraction').value),
+        extruderFeedrate: Number(document.getElementById('extruderFeedrate').value),
+        buildUpPressExtrusion: Number(document.getElementById('buildUpPressExtrusion').value),
+        releasePressExtrusion: Number(document.getElementById('releasePressExtrusion').value)
+    };
+
+    var count = 0;
+    for (var prop in addSettings) {
+        if (addSettings.hasOwnProperty(prop)) {
+            ++count;
+            var value = Number(addSettings[prop]);
+            if (!Number.isNaN(value)) {
+                currentData[prop] = value;
+            }
+        }
+    }
+
+}
+
+function getCurrentData() {
+    return currentData;
 }

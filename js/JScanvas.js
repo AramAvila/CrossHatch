@@ -15,7 +15,7 @@ var layers = 3;
 /**
  * layerHeight this value is not used currently, as soon as updadeVis() runs it is updated
  */
-var layerHeight = 1;
+var layerHeight = 1.5;
 
 /**
  * @canvasLayers this array contains the layers with the diferent items to draw. Global variable to ease modification
@@ -48,7 +48,7 @@ var axisZ = new Point(0, -1) * multiplier;
 /**
  * @drawStart indicates the point at which the drawing has to start. All the gui and crosspathc items will be realtive to this point
  */
-var drawStart = new Point(170, 400);
+var drawStart = new Point(170, 250);
 
 //All of the colors of the items
 var wallColor = "#ffd24d";
@@ -61,10 +61,6 @@ var plateColor = "#b3b3b3";
  * This method uses the current crosshatch settings to update the canvas
  */
 var updateVis = function () {
-
-    //All date and time* items beyond this point are just for debugging and/or optimization
-    var date = new Date();
-    var time1 = date.getTime();
 
     canvasLayers[2].activate();
     canvasLayers[2].clear();
@@ -160,6 +156,15 @@ var updateVis = function () {
         paths.push(recC);
     }
 
+    var newData = {
+        width: width,
+        height: height,
+        layers: layers,
+        cols: cols,
+        rows: rows
+    };
+
+    updateData(newData);//a call to the method updateData, located at JSfunctions.js
 
     canvasLayers[2] = new Layer({
         children: paths
@@ -167,30 +172,7 @@ var updateVis = function () {
 
     crosshatch.view.draw();
 
-    var data = {
-        width: width,
-        height: height,
-        layers: layers,
-        cols: cols,
-        rows: rows,
-        initialHeight: Number(document.getElementById('initialHeight').value),
-        layerHeight: Number(document.getElementById('layerHeight').value),
-        zTravelHeight: Number(document.getElementById('zTravelHeight').value),
-        matDiameter: Number(document.getElementById('matDiameter').value),
-        nozzDiameter: Number(document.getElementById('nozzDiameter').value),
-        feedrateTravel: Number(document.getElementById('feedrateTravel').value),
-        feedratePrinting: Number(document.getElementById('feedratePrinting').value),
-        extruderRetraction: Number(document.getElementById('extruderRetraction').value),
-        extruderFeedrate: Number(document.getElementById('extruderFeedrate').value),
-        buildUpPressExtrusion: Number(document.getElementById('buildUpPressExtrusion').value),
-        releasePressExtrusion: Number(document.getElementById('releasePressExtrusion').value),
-    };
 
-    updateValues(data);//a call to the method updateValues, located at JSfunctions.js
-
-    var date = new Date();
-    var time2 = date.getTime();
-    console.log("total update time: " + (time2 - time1 + " ms"));
 };
 
 var drawGui = function () {
@@ -581,11 +563,6 @@ var docLoaded = function (fn) {
     // The state indicates that the load event has been fired.
     // document.addEventListener( 'complete', fn, false );
 };
-
-function testMethod() {
-    console.log("testWorks!");
-}
-
 
 docLoaded(function () {
 
