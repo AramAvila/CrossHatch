@@ -1,3 +1,11 @@
+/*
+ * Developed by Aram Àvila Salvadó
+ * for 3DigitalCooks
+ * between 1st of March and 4 of april
+ *   
+ */
+
+
 /**
  * current data contains the updated values of the app
  * @type data
@@ -177,17 +185,17 @@ function getCurrentDataPoints() {
     var botMargin = -(currentData.height / 2);
     
     //spaces between rows or columns, has to be + 1 to make sure that the center of rows or columns is in the middle
-    var rowsSpacing = currentData.width / (currentData.rows + 1);
-    var colsSpacing = currentData.height / (currentData.cols + 1);
+    var rowsSpacing = currentData.height / (currentData.rows + 1);
+    var colsSpacing = currentData.width / (currentData.cols + 1);
 
-    for (var c = 1; c <= currentData.cols; c++) {
+    for (var c = 1; c <= currentData.rows; c++) {
         var start = new Point();
         start.x = leftMargin;
-        start.y = topMargin - c * colsSpacing;
+        start.y = topMargin - c * rowsSpacing;
 
         var end = new Point;
         end.x = rightMargin;
-        end.y = topMargin - c * colsSpacing;
+        end.y = topMargin - c * rowsSpacing;
 
         line = new Line;
         line.start = start;
@@ -196,13 +204,13 @@ function getCurrentDataPoints() {
         lines.push(line);
     }
 
-    for (var r = 1; r <= currentData.rows; r++) {
+    for (var r = 1; r <= currentData.cols; r++) {
         var start = new Point;
-        start.x = leftMargin + r * rowsSpacing;
+        start.x = leftMargin + r * colsSpacing;
         start.y = topMargin;
 
         var end = new Point;
-        end.x = leftMargin + r * rowsSpacing;
+        end.x = leftMargin + r * colsSpacing;
         end.y = botMargin;
 
         line = new Line;

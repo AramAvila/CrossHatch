@@ -1,3 +1,10 @@
+/*
+ * Developed by Aram Àvila Salvadó
+ * for 3DigitalCooks
+ * between 1st of March and 4 of april
+ *   
+ */
+
 //-------Those are the minimum and maximum range of values
 var maxSize = new Point(120, 120);
 var minSize = new Point(10, 10);
